@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Movies | Jacob's Blog</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>MOVIES</h1>
+
+    <nav class="nav-buttons">
+      <a href="index.html" class="nav-btn">Home</a>
+      <a href="music.html" class="nav-btn">Music</a>
+      <a href="film.html" class="nav-btn active">Movies</a>
+      <a href="shows.html" class="nav-btn">Shows</a>
+      <a href="projects.html" class="nav-btn">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="filter-panel">
+      <div class="search-section">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search movie reviews..."
+        />
+        <p id="searchCount" class="search-count"></p>
+      </div>
+
+      <div class="filter-row">
+        <label class="filter-control">
+          Rating
+          <select id="filterRating">
+            <option value="all">All ratings</option>
+            <option value="5">5 stars</option>
+            <option value="4">4 stars</option>
+            <option value="3">3 stars</option>
+          </select>
+        </label>
+
+        <label class="filter-control">
+          Genre
+          <select id="filterGenre">
+            <option value="all">All genres</option>
+            <option value="drama">Drama</option>
+            <option value="comedy">Comedy</option>
+            <option value="romance">Romance</option>
+            <option value="music">Music</option>
+            <option value="thriller">Thriller</option>
+            <option value="action">Action</option>
+            <option value="crime">Crime</option>
+          </select>
+        </label>
+
+        <label class="filter-control">
+          Featured
+          <select id="filterFeatured">
+            <option value="all">All reviews</option>
+            <option value="featured">Jacob's Picks only</option>
+          </select>
+        </label>
+
+        <label class="filter-control">
+          Year
+          <select id="filterSort">
+            <option value="default">Default order</option>
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+        </label>
+
+        <label class="filter-control">
+          Runtime
+          <select id="filterRuntime">
+            <option value="all">All runtimes</option>
+            <option value="under-120">Under 2 hours</option>
+            <option value="over-120">2 hours or longer</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section id="mediaContainer" class="grid"></section>
+  </main>
+
+  <script>
+    var PAGE_TYPE = "movie";
+  </script>
+  <script src="reviews.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>

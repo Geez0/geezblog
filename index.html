@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Home | Jacob's Blog</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>HOME</h1>
+
+    <nav class="nav-buttons">
+      <a href="index.html" class="nav-btn active">Home</a>
+      <a href="music.html" class="nav-btn">Music</a>
+      <a href="film.html" class="nav-btn">Movies</a>
+      <a href="shows.html" class="nav-btn">Shows</a>
+      <a href="projects.html" class="nav-btn">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero-section">
+      <p class="eyebrow">Featured Reviews</p>
+      <h2>Jacob's Picks</h2>
+      <p class="hero-text">
+        A rotating shelf of movies, shows, and albums I think are worth talking about.
+      </p>
+    </section>
+
+    <section class="carousel-section">
+      <div class="carousel-heading">
+        <p class="eyebrow">Movie Picks</p>
+        <h2>Movies</h2>
+      </div>
+
+      <div class="carousel">
+        <div id="movieCarouselTrack" class="carousel-track"></div>
+      </div>
+    </section>
+
+    <section class="carousel-section">
+      <div class="carousel-heading">
+        <p class="eyebrow">Show Picks</p>
+        <h2>Shows</h2>
+      </div>
+
+      <div class="carousel">
+        <div id="showCarouselTrack" class="carousel-track"></div>
+      </div>
+    </section>
+
+    <section class="carousel-section">
+      <div class="carousel-heading">
+        <p class="eyebrow">Music Picks</p>
+        <h2>Music</h2>
+      </div>
+
+      <div class="carousel">
+        <div id="musicCarouselTrack" class="carousel-track"></div>
+      </div>
+    </section>
+
+    <section class="section-heading">
+      <p class="eyebrow">Full Library</p>
+      <h2>All Reviews</h2>
+    </section>
+
+    <section id="mediaContainer" class="grid"></section>
+  </main>
+
+  <script>
+    var PAGE_TYPE = "all";
+  </script>
+  <script src="reviews.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
