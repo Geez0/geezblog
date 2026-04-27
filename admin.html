@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Admin | Jacob's Blog</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>ADMIN</h1>
+
+    <nav class="nav-buttons">
+      <a href="index.html" class="nav-btn">Home</a>
+      <a href="music.html" class="nav-btn">Music</a>
+      <a href="film.html" class="nav-btn">Movies</a>
+      <a href="shows.html" class="nav-btn">Shows</a>
+      <a href="projects.html" class="nav-btn">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="admin-panel" id="loginPanel">
+      <p class="eyebrow">Private</p>
+      <h2>Admin Login</h2>
+
+      <input id="emailInput" class="admin-input" type="email" placeholder="Email" />
+      <input id="passwordInput" class="admin-input" type="password" placeholder="Password" />
+
+      <button id="loginButton" class="admin-button">Log In</button>
+
+      <p id="loginMessage" class="admin-message"></p>
+    </section>
+
+    <section class="admin-panel hidden" id="reviewPanel">
+      <p class="eyebrow">New Entry</p>
+      <h2>Add Review</h2>
+
+      <label class="admin-label">
+        Type
+        <select id="typeInput" class="admin-input">
+          <option value="music">Music</option>
+          <option value="film">Movie / Show</option>
+        </select>
+      </label>
+
+      <label class="admin-label">
+        Title
+        <input id="titleInput" class="admin-input" type="text" placeholder="Title" />
+      </label>
+
+      <label class="admin-label">
+        Artist
+        <input id="artistInput" class="admin-input" type="text" placeholder="Only for music" />
+      </label>
+
+      <label class="admin-label">
+        Media Type
+        <select id="mediaTypeInput" class="admin-input">
+          <option value="">None for music</option>
+          <option value="movie">Movie</option>
+          <option value="tv">Show</option>
+        </select>
+      </label>
+
+      <label class="admin-label">
+        TMDb ID
+        <input id="tmdbIdInput" class="admin-input" type="number" placeholder="Optional for movies/shows" />
+      </label>
+
+      <label class="admin-label">
+        Rating
+        <select id="ratingInput" class="admin-input">
+          <option value="5">5 stars</option>
+          <option value="4">4 stars</option>
+          <option value="3">3 stars</option>
+          <option value="2">2 stars</option>
+          <option value="1">1 star</option>
+        </select>
+      </label>
+
+      <label class="admin-label checkbox-label">
+        <input id="featuredInput" type="checkbox" />
+        Jacob's Pick
+      </label>
+
+      <label class="admin-label">
+        Review
+        <textarea id="reviewInput" class="admin-input admin-textarea" placeholder="Write your review here..."></textarea>
+      </label>
+
+      <details class="manual-details">
+        <summary>Manual music override</summary>
+
+        <label class="admin-label">
+          Manual Title
+          <input id="manualTitleInput" class="admin-input" type="text" />
+        </label>
+
+        <label class="admin-label">
+          Manual Artist
+          <input id="manualArtistInput" class="admin-input" type="text" />
+        </label>
+
+        <label class="admin-label">
+          Manual Image URL
+          <input id="manualImageInput" class="admin-input" type="text" />
+        </label>
+
+        <label class="admin-label">
+          Manual Release Year
+          <input id="manualReleaseDateInput" class="admin-input" type="text" />
+        </label>
+
+        <label class="admin-label">
+          Manual Genre
+          <input id="manualGenreInput" class="admin-input" type="text" />
+        </label>
+      </details>
+
+      <button id="saveReviewButton" class="admin-button">Save Review</button>
+      <button id="logoutButton" class="admin-button secondary-button">Log Out</button>
+
+      <p id="saveMessage" class="admin-message"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="admin.js"></script>
+
+</body>
+</html>
