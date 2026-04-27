@@ -1,4 +1,5 @@
-const SUPABASE_URL = "https://stmzeeeukmxbfqwiznix.supabase.co/rest/v1/";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0bXplZWV1a214YmZxd2l6bml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxOTE2MjQsImV4cCI6MjA5Mjc2NzYyNH0.G2Qw-_wIGVMT_-q6LSrbrmlgkWOZ4iLcpzQFQ5N6bNg
+const SUPABASE_URL = "https://stmzeeeukmxbfqwiznix.supabase.co";
 
-const supabaseClient = supabase.createClient(https://stmzeeeukmxbfqwiznix.supabase.co/rest/v1/,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0bXplZWV1a214YmZxd2l6bml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxOTE2MjQsImV4cCI6MjA5Mjc2NzYyNH0.G2Qw-_wIGVMT_-q6LSrbrmlgkWOZ4iLcpzQFQ5N6bNg);
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0bXplZWV1a214YmZxd2l6bml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxOTE2MjQsImV4cCI6MjA5Mjc2NzYyNH0.G2Qw-_wIGVMT_-q6LSrbrmlgkWOZ4iLcpzQFQ5N6bNg";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
