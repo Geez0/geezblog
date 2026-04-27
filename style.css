@@ -519,3 +519,110 @@ main {
     font-size: 13px;
   }
 }
+/* ADMIN PAGE */
+
+.hidden {
+  display: none;
+}
+
+.admin-panel {
+  max-width: 760px;
+  background: #151511;
+  border: 1px solid #373126;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+}
+
+.admin-panel h2 {
+  margin: 0 0 22px;
+  font-size: clamp(32px, 5vw, 60px);
+  letter-spacing: -2px;
+  text-transform: uppercase;
+}
+
+.admin-label {
+  display: block;
+  color: #d8b45f;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+
+.admin-input {
+  width: 100%;
+  margin-top: 8px;
+  background: #0f0f0d;
+  color: #f4efe6;
+  border: 1px solid #6f6658;
+  border-radius: 14px;
+  padding: 13px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+}
+
+.admin-input:focus {
+  border-color: #d8b45f;
+  box-shadow: 0 0 0 4px rgba(216, 180, 95, 0.12);
+}
+
+.admin-textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+
+.checkbox-label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-button {
+  background: #f4efe6;
+  color: #0f0f0d;
+  border: 1px solid #f4efe6;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: 0.25s ease;
+}
+
+.admin-button:hover {
+  transform: translateY(-2px);
+  background: #d8b45f;
+  border-color: #d8b45f;
+}
+
+.secondary-button {
+  background: transparent;
+  color: #f4efe6;
+  border-color: #6f6658;
+}
+
+.admin-message {
+  color: #c7bba8;
+  font-weight: 700;
+  margin-top: 16px;
+}
+
+.manual-details {
+  border: 1px solid #373126;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.manual-details summary {
+  color: #d8b45f;
+  cursor: pointer;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  font-size: 11px;
+  margin-bottom: 14px;
+}
