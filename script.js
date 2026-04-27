@@ -2,8 +2,9 @@ const TMDB_API_KEY = "a666ef51ef474c8e71f2e1a0961df6d1";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 
 const apiCache = new Map();
+let allReviews = [];
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   const mediaContainer = document.getElementById("mediaContainer");
   const searchInput = document.getElementById("searchInput");
 
@@ -11,15 +12,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const showCarouselTrack = document.getElementById("showCarouselTrack");
   const musicCarouselTrack = document.getElementById("musicCarouselTrack");
 
-  if (typeof reviews === "undefined") {
-    console.error("reviews.js is not loading.");
-    return;
-  }
-
   if (typeof PAGE_TYPE === "undefined") {
     console.error("PAGE_TYPE is not set.");
     return;
   }
+
+  allReviews = await loadAllReviews();
 
   if (movieCarouselTrack) {
     displayCarousel(movieCarouselTrack, "movie");
@@ -56,6 +54,72 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+async function loadAllReviews() {
+  let localReviews = [];
+
+  if (typeof reviews !== "undefined") {
+    localReviews = reviews;
+  }
+
+  const supabaseReviews = await loadSupabaseReviews();
+
+  return [...localReviews, ...supabaseReviews];
+}
+
+async function loadSupabaseReviews() {
+  if (typeof supabaseClient === "undefined") {
+    console.warn("Supabase is not connected. Using local reviews only.");
+    return [];
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("reviews")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Supabase load error:", error);
+      return [];
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    return data.map(row => convertSupabaseReview(row));
+  } catch (error) {
+    console.error("Supabase connection error:", error);
+    return [];
+  }
+}
+
+function convertSupabaseReview(row) {
+  const review = {
+    id: row.id,
+    type: row.type,
+    title: row.title,
+    artist: row.artist || "",
+    mediaType: row.media_type || "",
+    tmdbId: row.tmdb_id || null,
+    rating: row.rating,
+    featured: row.featured || false,
+    review: row.review || ""
+  };
+
+  if (row.manual_image) {
+    review.manual = {
+      title: row.manual_title || row.title,
+      artist: row.manual_artist || row.artist || "",
+      image: row.manual_image,
+      releaseDate: row.manual_release_date || "Unknown",
+      genre: row.manual_genre || "Unknown genre"
+    };
+  }
+
+  return review;
+}
 
 async function getMusicData(item) {
   const cacheKey = `music-${item.title}-${item.artist}`;
@@ -103,7 +167,7 @@ async function getMusicData(item) {
 
     const exactMatch = data.results.find(album =>
       album.collectionName.toLowerCase().includes(item.title.toLowerCase()) &&
-      album.artistName.toLowerCase().includes(item.artist.toLowerCase())
+      album.artistName.toLowerCase().includes((item.artist || "").toLowerCase())
     );
 
     const album = exactMatch || data.results[0];
@@ -268,26 +332,26 @@ function getMediaLabel(item) {
 
 function getBaseReviewsForPage() {
   if (PAGE_TYPE === "all") {
-    return reviews;
+    return allReviews;
   }
 
   if (PAGE_TYPE === "music") {
-    return reviews.filter(item => item.type === "music");
+    return allReviews.filter(item => item.type === "music");
   }
 
   if (PAGE_TYPE === "movie") {
-    return reviews.filter(item =>
+    return allReviews.filter(item =>
       item.type === "film" && item.mediaType === "movie"
     );
   }
 
   if (PAGE_TYPE === "show") {
-    return reviews.filter(item =>
+    return allReviews.filter(item =>
       item.type === "film" && item.mediaType === "tv"
     );
   }
 
-  return reviews;
+  return allReviews;
 }
 
 function getFilterState() {
@@ -485,11 +549,11 @@ async function displayCarousel(carouselTrack, carouselType) {
   let featuredReviews;
 
   if (carouselType === "music") {
-    featuredReviews = reviews.filter(item =>
+    featuredReviews = allReviews.filter(item =>
       item.featured && item.type === "music"
     );
   } else {
-    featuredReviews = reviews.filter(item =>
+    featuredReviews = allReviews.filter(item =>
       item.featured &&
       item.type === "film" &&
       item.mediaType === carouselType
