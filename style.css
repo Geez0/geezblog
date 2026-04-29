@@ -625,4 +625,83 @@ main {
   letter-spacing: 1.3px;
   font-size: 11px;
   margin-bottom: 14px;
+/* ADMIN EDIT / DELETE SECTION */
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 1.1fr) minmax(280px, 0.9fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.admin-review-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.admin-review-item {
+  background: #0f0f0d;
+  border: 1px solid #373126;
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.admin-review-info h3 {
+  margin: 4px 0 8px;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+}
+
+.admin-review-info p {
+  margin: 0 0 6px;
+  color: #c7bba8;
+  font-size: 14px;
+}
+
+.admin-date {
+  color: #8f8474 !important;
+  font-size: 12px !important;
+}
+
+.admin-review-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.small-admin-button {
+  padding: 9px 14px;
+  font-size: 12px;
+  margin-right: 0;
+}
+
+.danger-button {
+  background: transparent;
+  color: #f4efe6;
+  border-color: #7a3c3c;
+}
+
+.danger-button:hover {
+  background: #7a3c3c;
+  color: #f4efe6;
+  border-color: #7a3c3c;
+}
+
+@media (max-width: 950px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-review-item {
+    flex-direction: column;
+  }
+
+  .admin-review-actions {
+    flex-direction: row;
+  }
 }
