@@ -17,6 +17,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const adminReviewList = document.getElementById("adminReviewList");
   const formTitle = document.getElementById("formTitle");
 
+  if (typeof supabaseClient === "undefined") {
+    loginMessage.textContent = "Supabase is not connected. Check supabase-config.js.";
+    loginPanel.classList.remove("hidden");
+    adminDashboard.classList.add("hidden");
+    return;
+  }
+
+  showLogin();
   checkSession();
 
   loginButton.addEventListener("click", async function () {
@@ -62,7 +70,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   async function checkSession() {
-    const { data } = await supabaseClient.auth.getSession();
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) {
+      loginMessage.textContent = error.message;
+      showLogin();
+      return;
+    }
 
     if (data.session) {
       showAdmin();
