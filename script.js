@@ -114,15 +114,18 @@ function convertSupabaseReview(row) {
       artist: row.manual_artist || row.artist || "",
       image: row.manual_image,
       releaseDate: row.manual_release_date || "Unknown",
-      genre: row.manual_genre || "Unknown genre"
+      genre: row.manual_genre || "Unknown genre",
+      spotifyUrl: ""
     };
   }
 
   return review;
 }
 
+/* MUSIC DATA — SPOTIFY */
+
 async function getMusicData(item) {
-  const cacheKey = `music-${item.title}-${item.artist}`;
+  const cacheKey = `spotify-${item.title}-${item.artist}`;
 
   if (apiCache.has(cacheKey)) {
     return apiCache.get(cacheKey);
@@ -136,75 +139,86 @@ async function getMusicData(item) {
       releaseDate: item.manual.releaseDate,
       genre: item.manual.genre,
       genres: [item.manual.genre],
-      year: Number(item.manual.releaseDate) || 0
+      year: Number(item.manual.releaseDate) || 0,
+      spotifyUrl: item.manual.spotifyUrl || ""
     };
 
     apiCache.set(cacheKey, manualData);
     return manualData;
   }
 
-  const searchTerm = encodeURIComponent(`${item.title} ${item.artist}`);
-  const url = `https://itunes.apple.com/search?term=${searchTerm}&media=music&entity=album&attribute=albumTerm&country=US&limit=10`;
+  if (typeof supabaseClient === "undefined") {
+    console.warn("Supabase is not connected. Cannot use Spotify search.");
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (!data.results || data.results.length === 0) {
-      const fallbackData = {
-        title: item.title,
-        artist: item.artist || "Unknown artist",
-        image: "https://via.placeholder.com/600x600?text=No+Album+Art",
-        releaseDate: "Unknown",
-        genre: "Unknown genre",
-        genres: ["Unknown genre"],
-        year: 0
-      };
-
-      apiCache.set(cacheKey, fallbackData);
-      return fallbackData;
-    }
-
-    const exactMatch = data.results.find(album =>
-      album.collectionName.toLowerCase().includes(item.title.toLowerCase()) &&
-      album.artistName.toLowerCase().includes((item.artist || "").toLowerCase())
-    );
-
-    const album = exactMatch || data.results[0];
-
-    const year = album.releaseDate
-      ? new Date(album.releaseDate).getFullYear()
-      : 0;
-
-    const musicData = {
-      title: album.collectionName,
-      artist: album.artistName,
-      image: album.artworkUrl100.replace("100x100bb", "600x600bb"),
-      releaseDate: year || "Unknown",
-      genre: album.primaryGenreName || "Unknown genre",
-      genres: [album.primaryGenreName || "Unknown genre"],
-      year: year
+    const fallbackData = {
+      title: item.title,
+      artist: item.artist || "Unknown artist",
+      image: "https://via.placeholder.com/600x600?text=No+Album+Art",
+      releaseDate: "Unknown",
+      genre: "Unknown",
+      genres: ["Unknown"],
+      year: 0,
+      spotifyUrl: ""
     };
 
-    apiCache.set(cacheKey, musicData);
-    return musicData;
+    apiCache.set(cacheKey, fallbackData);
+    return fallbackData;
+  }
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke("spotify-search", {
+      body: {
+        title: item.title,
+        artist: item.artist
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || data.error) {
+      throw new Error(data?.error || "No Spotify data found.");
+    }
+
+    const year = data.releaseDate && data.releaseDate !== "Unknown"
+      ? Number(data.releaseDate)
+      : 0;
+
+    const spotifyData = {
+      title: data.title || item.title,
+      artist: data.artist || item.artist || "Unknown artist",
+      image: data.image || "https://via.placeholder.com/600x600?text=No+Album+Art",
+      releaseDate: data.releaseDate || "Unknown",
+      genre: data.genre || "Album",
+      genres: [data.genre || "Album"],
+      year: year,
+      spotifyUrl: data.spotifyUrl || "",
+      spotifyId: data.spotifyId || ""
+    };
+
+    apiCache.set(cacheKey, spotifyData);
+    return spotifyData;
   } catch (error) {
-    console.error("iTunes API error:", error);
+    console.error("Spotify function error:", error);
 
     const errorData = {
       title: item.title,
       artist: item.artist || "Unknown artist",
       image: "https://via.placeholder.com/600x600?text=No+Album+Art",
       releaseDate: "Unknown",
-      genre: "Unknown genre",
-      genres: ["Unknown genre"],
-      year: 0
+      genre: "Unknown",
+      genres: ["Unknown"],
+      year: 0,
+      spotifyUrl: ""
     };
 
     apiCache.set(cacheKey, errorData);
     return errorData;
   }
 }
+
+/* FILM / SHOW DATA — TMDB */
 
 async function searchTmdbItem(item) {
   const mediaType = item.mediaType || "movie";
@@ -310,9 +324,12 @@ async function getApiData(item) {
     genres: [],
     genre: "",
     runtime: 0,
-    overview: ""
+    overview: "",
+    spotifyUrl: ""
   };
 }
+
+/* HELPERS */
 
 function createStars(rating) {
   return "★".repeat(rating) + "☆".repeat(5 - rating);
@@ -495,6 +512,8 @@ function formatDetails(item, apiData) {
   return `${apiData.releaseDate}${genreText}${runtimeText}`;
 }
 
+/* CARD CREATION */
+
 function createCard(item, apiData, container) {
   const card = document.createElement("div");
   card.className = `card ${item.type}-card`;
@@ -502,6 +521,11 @@ function createCard(item, apiData, container) {
   const apiOverview =
     item.type === "film" && apiData.overview
       ? `<p class="api-overview">${apiData.overview}</p>`
+      : "";
+
+  const spotifyLink =
+    item.type === "music" && apiData.spotifyUrl
+      ? `<a class="spotify-link" href="${apiData.spotifyUrl}" target="_blank" rel="noopener noreferrer">Open on Spotify</a>`
       : "";
 
   card.innerHTML = `
@@ -514,6 +538,7 @@ function createCard(item, apiData, container) {
       <div class="description">
         <p>${item.review}</p>
         ${apiOverview}
+        ${spotifyLink}
       </div>
     </div>
   `;
@@ -530,6 +555,11 @@ function createCarouselCard(item, apiData, container) {
       ? `${apiData.artist} • ${apiData.releaseDate}`
       : `${apiData.releaseDate}`;
 
+  const spotifyLink =
+    item.type === "music" && apiData.spotifyUrl
+      ? `<a class="spotify-link carousel-spotify-link" href="${apiData.spotifyUrl}" target="_blank" rel="noopener noreferrer">Spotify</a>`
+      : "";
+
   card.innerHTML = `
     <img src="${apiData.image}" alt="${apiData.title}">
     <div class="carousel-info">
@@ -537,6 +567,7 @@ function createCarouselCard(item, apiData, container) {
       <h3>${apiData.title}</h3>
       <p>${details}</p>
       <div class="stars small-stars">${createStars(item.rating)}</div>
+      ${spotifyLink}
     </div>
   `;
 
