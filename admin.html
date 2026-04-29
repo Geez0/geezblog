@@ -23,6 +23,7 @@
   </header>
 
   <main>
+
     <section class="admin-panel" id="loginPanel">
       <p class="eyebrow">Private</p>
       <h2>Admin Login</h2>
@@ -35,102 +36,121 @@
       <p id="loginMessage" class="admin-message"></p>
     </section>
 
-    <section class="admin-panel hidden" id="reviewPanel">
-      <p class="eyebrow">New Entry</p>
-      <h2>Add Review</h2>
+    <section class="admin-layout hidden" id="adminDashboard">
 
-      <label class="admin-label">
-        Type
-        <select id="typeInput" class="admin-input">
-          <option value="music">Music</option>
-          <option value="film">Movie / Show</option>
-        </select>
-      </label>
+      <section class="admin-panel">
+        <p class="eyebrow">New Entry</p>
+        <h2 id="formTitle">Add Review</h2>
 
-      <label class="admin-label">
-        Title
-        <input id="titleInput" class="admin-input" type="text" placeholder="Title" />
-      </label>
-
-      <label class="admin-label">
-        Artist
-        <input id="artistInput" class="admin-input" type="text" placeholder="Only for music" />
-      </label>
-
-      <label class="admin-label">
-        Media Type
-        <select id="mediaTypeInput" class="admin-input">
-          <option value="">None for music</option>
-          <option value="movie">Movie</option>
-          <option value="tv">Show</option>
-        </select>
-      </label>
-
-      <label class="admin-label">
-        TMDb ID
-        <input id="tmdbIdInput" class="admin-input" type="number" placeholder="Optional for movies/shows" />
-      </label>
-
-      <label class="admin-label">
-        Rating
-        <select id="ratingInput" class="admin-input">
-          <option value="5">5 stars</option>
-          <option value="4">4 stars</option>
-          <option value="3">3 stars</option>
-          <option value="2">2 stars</option>
-          <option value="1">1 star</option>
-        </select>
-      </label>
-
-      <label class="admin-label checkbox-label">
-        <input id="featuredInput" type="checkbox" />
-        Jacob's Pick
-      </label>
-
-      <label class="admin-label">
-        Review
-        <textarea id="reviewInput" class="admin-input admin-textarea" placeholder="Write your review here..."></textarea>
-      </label>
-
-      <details class="manual-details">
-        <summary>Manual music override</summary>
+        <input id="editingIdInput" type="hidden" />
 
         <label class="admin-label">
-          Manual Title
-          <input id="manualTitleInput" class="admin-input" type="text" />
+          Type
+          <select id="typeInput" class="admin-input">
+            <option value="music">Music</option>
+            <option value="film">Movie / Show</option>
+          </select>
         </label>
 
         <label class="admin-label">
-          Manual Artist
-          <input id="manualArtistInput" class="admin-input" type="text" />
+          Title
+          <input id="titleInput" class="admin-input" type="text" placeholder="Title" />
         </label>
 
         <label class="admin-label">
-          Manual Image URL
-          <input id="manualImageInput" class="admin-input" type="text" />
+          Artist
+          <input id="artistInput" class="admin-input" type="text" placeholder="Only for music" />
         </label>
 
         <label class="admin-label">
-          Manual Release Year
-          <input id="manualReleaseDateInput" class="admin-input" type="text" />
+          Media Type
+          <select id="mediaTypeInput" class="admin-input">
+            <option value="">None for music</option>
+            <option value="movie">Movie</option>
+            <option value="tv">Show</option>
+          </select>
         </label>
 
         <label class="admin-label">
-          Manual Genre
-          <input id="manualGenreInput" class="admin-input" type="text" />
+          TMDb ID
+          <input id="tmdbIdInput" class="admin-input" type="number" placeholder="Optional for movies/shows" />
         </label>
-      </details>
 
-      <button id="saveReviewButton" class="admin-button">Save Review</button>
-      <button id="logoutButton" class="admin-button secondary-button">Log Out</button>
+        <label class="admin-label">
+          Rating
+          <select id="ratingInput" class="admin-input">
+            <option value="5">5 stars</option>
+            <option value="4">4 stars</option>
+            <option value="3">3 stars</option>
+            <option value="2">2 stars</option>
+            <option value="1">1 star</option>
+          </select>
+        </label>
 
-      <p id="saveMessage" class="admin-message"></p>
+        <label class="admin-label checkbox-label">
+          <input id="featuredInput" type="checkbox" />
+          Jacob's Pick
+        </label>
+
+        <label class="admin-label">
+          Review
+          <textarea id="reviewInput" class="admin-input admin-textarea" placeholder="Write your review here..."></textarea>
+        </label>
+
+        <details class="manual-details">
+          <summary>Manual music override</summary>
+
+          <label class="admin-label">
+            Manual Title
+            <input id="manualTitleInput" class="admin-input" type="text" />
+          </label>
+
+          <label class="admin-label">
+            Manual Artist
+            <input id="manualArtistInput" class="admin-input" type="text" />
+          </label>
+
+          <label class="admin-label">
+            Manual Image URL
+            <input id="manualImageInput" class="admin-input" type="text" />
+          </label>
+
+          <label class="admin-label">
+            Manual Release Year
+            <input id="manualReleaseDateInput" class="admin-input" type="text" />
+          </label>
+
+          <label class="admin-label">
+            Manual Genre
+            <input id="manualGenreInput" class="admin-input" type="text" />
+          </label>
+        </details>
+
+        <button id="saveReviewButton" class="admin-button">Save Review</button>
+        <button id="cancelEditButton" class="admin-button secondary-button hidden">Cancel Edit</button>
+        <button id="logoutButton" class="admin-button secondary-button">Log Out</button>
+
+        <p id="saveMessage" class="admin-message"></p>
+      </section>
+
+      <section class="admin-panel">
+        <p class="eyebrow">Manage</p>
+        <h2>Your Reviews</h2>
+
+        <button id="refreshReviewsButton" class="admin-button secondary-button">Refresh List</button>
+
+        <div id="adminReviewList" class="admin-review-list"></div>
+
+        <p id="listMessage" class="admin-message"></p>
+      </section>
+
     </section>
+
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
-  <script src="admin.js"></script>
+  <script src="supabase-config.js?v=3"></script>
+  <script src="admin.js?v=3"></script>
 
 </body>
 </html>
