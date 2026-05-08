@@ -115,20 +115,53 @@ function convertSupabaseReview(row) {
       image: row.manual_image,
       releaseDate: row.manual_release_date || "Unknown",
       genre: row.manual_genre || "Unknown genre",
-      spotifyUrl: ""
+      spotifyUrl: row.spotify_url || ""
+    };
+  }
+
+  if (row.spotify_image || row.spotify_url) {
+    review.spotify = {
+      title: row.spotify_title || row.title,
+      artist: row.spotify_artist || row.artist || "",
+      image: row.spotify_image || "",
+      releaseDate: row.spotify_release_date || "Unknown",
+      genre: row.spotify_genre || "Album",
+      spotifyUrl: row.spotify_url || "",
+      spotifyId: row.spotify_id || ""
     };
   }
 
   return review;
 }
 
-/* MUSIC DATA — SPOTIFY */
+/* MUSIC DATA — SAVED SPOTIFY FIRST, FUNCTION FALLBACK SECOND */
 
 async function getMusicData(item) {
   const cacheKey = `spotify-${item.title}-${item.artist}`;
 
   if (apiCache.has(cacheKey)) {
     return apiCache.get(cacheKey);
+  }
+
+  if (item.spotify) {
+    const year = item.spotify.releaseDate && item.spotify.releaseDate !== "Unknown"
+      ? Number(item.spotify.releaseDate)
+      : 0;
+
+    const savedSpotifyData = {
+      title: item.spotify.title || item.title,
+      artist: item.spotify.artist || item.artist || "Unknown artist",
+      image: item.spotify.image || "https://via.placeholder.com/600x600?text=No+Album+Art",
+      releaseDate: item.spotify.releaseDate || "Unknown",
+      genre: item.spotify.genre || "Album",
+      genres: [item.spotify.genre || "Album"],
+      year: year,
+      spotifyUrl: item.spotify.spotifyUrl || "",
+      spotifyId: item.spotify.spotifyId || ""
+    };
+
+    apiCache.set(cacheKey, savedSpotifyData);
+    return savedSpotifyData;
   }
 
   if (item.manual) {
@@ -596,12 +629,21 @@ async function displayCarousel(carouselTrack, carouselType) {
     return;
   }
 
-  const carouselItems = [...featuredReviews, ...featuredReviews];
+  const carouselItems =
+    featuredReviews.length === 1
+      ? featuredReviews
+      : [...featuredReviews, ...featuredReviews];
 
-  for (const item of carouselItems) {
+  const carouselPromises = carouselItems.map(async item => {
     const apiData = await getApiData(item);
+    return { item, apiData };
+  });
+
+  const carouselCards = await Promise.all(carouselPromises);
+
+  carouselCards.forEach(({ item, apiData }) => {
     createCarouselCard(item, apiData, carouselTrack);
-  }
+  });
 }
 
 async function displayMedia(mediaContainer, searchTerm = "") {
@@ -609,15 +651,18 @@ async function displayMedia(mediaContainer, searchTerm = "") {
 
   const filters = getFilterState();
   const baseReviews = getBaseReviewsForPage();
-  const filteredCards = [];
 
-  for (const item of baseReviews) {
+  const cardPromises = baseReviews.map(async item => {
     const apiData = await getApiData(item);
 
     if (passesFilters(item, apiData, searchTerm, filters)) {
-      filteredCards.push({ item, apiData });
+      return { item, apiData };
     }
-  }
+
+    return null;
+  });
+
+  const filteredCards = (await Promise.all(cardPromises)).filter(Boolean);
 
   sortReviewCards(filteredCards, filters.sort);
 
