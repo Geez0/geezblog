@@ -5,6 +5,8 @@ const apiCache = new Map();
 let allReviews = [];
 
 document.addEventListener("DOMContentLoaded", async function () {
+  createReviewModal();
+
   const mediaContainer = document.getElementById("mediaContainer");
   const searchInput = document.getElementById("searchInput");
 
