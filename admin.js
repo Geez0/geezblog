@@ -9,13 +9,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const logoutButton = document.getElementById("logoutButton");
   const saveReviewButton = document.getElementById("saveReviewButton");
   const cancelEditButton = document.getElementById("cancelEditButton");
+  const clearFormButton = document.getElementById("clearFormButton");
   const refreshReviewsButton = document.getElementById("refreshReviewsButton");
+  const fetchSpotifyPreviewButton = document.getElementById("fetchSpotifyPreviewButton");
 
   const loginMessage = document.getElementById("loginMessage");
   const saveMessage = document.getElementById("saveMessage");
   const listMessage = document.getElementById("listMessage");
+  const previewMessage = document.getElementById("previewMessage");
+
   const adminReviewList = document.getElementById("adminReviewList");
   const formTitle = document.getElementById("formTitle");
+
+  let previewSpotifyData = null;
 
   if (typeof supabaseClient === "undefined") {
     loginMessage.textContent = "Supabase is not connected. Check supabase-config.js.";
@@ -24,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
+  setupLivePreview();
   showLogin();
   checkSession();
 
@@ -63,10 +70,21 @@ document.addEventListener("DOMContentLoaded", function () {
   cancelEditButton.addEventListener("click", function () {
     clearForm();
     setAddMode();
+    renderPreview();
+  });
+
+  clearFormButton.addEventListener("click", function () {
+    clearForm();
+    setAddMode();
+    renderPreview();
   });
 
   refreshReviewsButton.addEventListener("click", function () {
     loadAdminReviews();
+  });
+
+  fetchSpotifyPreviewButton.addEventListener("click", function () {
+    fetchSpotifyPreview();
   });
 
   async function checkSession() {
@@ -89,6 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function showAdmin() {
     loginPanel.classList.add("hidden");
     adminDashboard.classList.remove("hidden");
+    renderPreview();
   }
 
   function showLogin() {
@@ -137,6 +156,51 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
+  async function fetchSpotifyPreview() {
+    const type = document.getElementById("typeInput").value;
+    const title = document.getElementById("titleInput").value.trim();
+    const artist = document.getElementById("artistInput").value.trim();
+
+    previewSpotifyData = null;
+
+    if (type !== "music") {
+      previewMessage.textContent = "Spotify preview only works for music reviews.";
+      renderPreview();
+      return;
+    }
+
+    if (!title || !artist) {
+      previewMessage.textContent = "Enter a music title and artist first.";
+      renderPreview();
+      return;
+    }
+
+    previewMessage.textContent = "Fetching Spotify preview...";
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke("spotify-search", {
+        body: {
+          title: title,
+          artist: artist
+        }
+      });
+
+      if (error || !data || data.error) {
+        previewMessage.textContent = data?.error || error?.message || "Spotify preview failed.";
+        renderPreview();
+        return;
+      }
+
+      previewSpotifyData = data;
+      previewMessage.textContent = "Spotify preview loaded.";
+      renderPreview();
+    } catch (error) {
+      previewMessage.textContent = "Spotify preview failed.";
+      console.error("Spotify preview error:", error);
+      renderPreview();
+    }
+  }
+
   async function addSpotifyDataIfNeeded(reviewData) {
     const isMusic = reviewData.type === "music";
     const hasArtist = Boolean(reviewData.artist);
@@ -152,6 +216,24 @@ document.addEventListener("DOMContentLoaded", function () {
         spotify_genre: null,
         spotify_url: null,
         spotify_id: null
+      };
+    }
+
+    if (
+      previewSpotifyData &&
+      previewSpotifyData.title &&
+      reviewData.title &&
+      reviewData.artist
+    ) {
+      return {
+        ...reviewData,
+        spotify_title: previewSpotifyData.title || reviewData.title,
+        spotify_artist: previewSpotifyData.artist || reviewData.artist,
+        spotify_image: previewSpotifyData.image || null,
+        spotify_release_date: previewSpotifyData.releaseDate || null,
+        spotify_genre: previewSpotifyData.genre || "Album",
+        spotify_url: previewSpotifyData.spotifyUrl || null,
+        spotify_id: previewSpotifyData.spotifyId || null
       };
     }
 
@@ -230,6 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
     saveMessage.textContent = "Review saved successfully.";
     clearForm();
     setAddMode();
+    renderPreview();
     loadAdminReviews();
   }
 
@@ -258,6 +341,7 @@ document.addEventListener("DOMContentLoaded", function () {
     saveMessage.textContent = "Review updated successfully.";
     clearForm();
     setAddMode();
+    renderPreview();
     loadAdminReviews();
   }
 
@@ -362,7 +446,22 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("manualReleaseDateInput").value = review.manual_release_date || "";
     document.getElementById("manualGenreInput").value = review.manual_genre || "";
 
+    if (review.spotify_image || review.spotify_url) {
+      previewSpotifyData = {
+        title: review.spotify_title || review.title,
+        artist: review.spotify_artist || review.artist,
+        image: review.spotify_image || "",
+        releaseDate: review.spotify_release_date || "",
+        genre: review.spotify_genre || "Album",
+        spotifyUrl: review.spotify_url || "",
+        spotifyId: review.spotify_id || ""
+      };
+    } else {
+      previewSpotifyData = null;
+    }
+
     setEditMode();
+    renderPreview();
 
     window.scrollTo({
       top: 0,
@@ -387,6 +486,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("manualImageInput").value = "";
     document.getElementById("manualReleaseDateInput").value = "";
     document.getElementById("manualGenreInput").value = "";
+
+    previewSpotifyData = null;
+    previewMessage.textContent = "";
   }
 
   function setEditMode() {
@@ -400,6 +502,146 @@ document.addEventListener("DOMContentLoaded", function () {
     formTitle.textContent = "Add Review";
     saveReviewButton.textContent = "Save Review";
     cancelEditButton.classList.add("hidden");
+  }
+
+  function setupLivePreview() {
+    const previewInputs = [
+      "typeInput",
+      "titleInput",
+      "artistInput",
+      "mediaTypeInput",
+      "ratingInput",
+      "featuredInput",
+      "reviewInput",
+      "manualTitleInput",
+      "manualArtistInput",
+      "manualImageInput",
+      "manualReleaseDateInput",
+      "manualGenreInput"
+    ];
+
+    previewInputs.forEach(id => {
+      const element = document.getElementById(id);
+
+      if (!element) {
+        return;
+      }
+
+      element.addEventListener("input", function () {
+        previewSpotifyData = shouldClearSpotifyPreview(id) ? null : previewSpotifyData;
+        renderPreview();
+      });
+
+      element.addEventListener("change", function () {
+        previewSpotifyData = shouldClearSpotifyPreview(id) ? null : previewSpotifyData;
+        renderPreview();
+      });
+    });
+  }
+
+  function shouldClearSpotifyPreview(id) {
+    return id === "titleInput" || id === "artistInput" || id === "typeInput";
+  }
+
+  function renderPreview() {
+    const type = document.getElementById("typeInput").value;
+    const title = document.getElementById("titleInput").value.trim();
+    const artist = document.getElementById("artistInput").value.trim();
+    const mediaType = document.getElementById("mediaTypeInput").value;
+    const rating = Number(document.getElementById("ratingInput").value);
+    const review = document.getElementById("reviewInput").value.trim();
+
+    const manualTitle = document.getElementById("manualTitleInput").value.trim();
+    const manualArtist = document.getElementById("manualArtistInput").value.trim();
+    const manualImage = document.getElementById("manualImageInput").value.trim();
+    const manualReleaseDate = document.getElementById("manualReleaseDateInput").value.trim();
+    const manualGenre = document.getElementById("manualGenreInput").value.trim();
+
+    const previewType = document.getElementById("previewType");
+    const previewTitle = document.getElementById("previewTitle");
+    const previewDetails = document.getElementById("previewDetails");
+    const previewStars = document.getElementById("previewStars");
+    const previewReview = document.getElementById("previewReview");
+    const previewSpotifyLink = document.getElementById("previewSpotifyLink");
+    const previewCard = document.getElementById("previewCard");
+
+    const imageTarget = previewCard.querySelector(".admin-preview-image-placeholder, .admin-preview-image");
+
+    let displayTitle = title || "Title";
+    let displayArtist = artist || "Artist";
+    let displayYear = "Year";
+    let displayGenre = type === "music" ? "Album" : "Movie / Show";
+    let displayImage = "";
+    let spotifyUrl = "";
+
+    if (manualImage) {
+      displayTitle = manualTitle || displayTitle;
+      displayArtist = manualArtist || displayArtist;
+      displayYear = manualReleaseDate || displayYear;
+      displayGenre = manualGenre || displayGenre;
+      displayImage = manualImage;
+    } else if (previewSpotifyData) {
+      displayTitle = previewSpotifyData.title || displayTitle;
+      displayArtist = previewSpotifyData.artist || displayArtist;
+      displayYear = previewSpotifyData.releaseDate || displayYear;
+      displayGenre = previewSpotifyData.genre || displayGenre;
+      displayImage = previewSpotifyData.image || "";
+      spotifyUrl = previewSpotifyData.spotifyUrl || "";
+    }
+
+    previewType.textContent = type === "music"
+      ? "Music"
+      : mediaType === "tv"
+        ? "Show"
+        : "Movie";
+
+    previewTitle.textContent = displayTitle;
+
+    previewDetails.textContent = type === "music"
+      ? `${displayArtist} • ${displayYear} • ${displayGenre}`
+      : `${mediaType || "Movie / Show"}`;
+
+    previewStars.textContent = createStars(rating);
+    previewReview.textContent = review || "Your review preview will show here.";
+
+    if (spotifyUrl) {
+      previewSpotifyLink.href = spotifyUrl;
+      previewSpotifyLink.classList.remove("hidden");
+    } else {
+      previewSpotifyLink.href = "#";
+      previewSpotifyLink.classList.add("hidden");
+    }
+
+    if (displayImage) {
+      if (imageTarget.tagName.toLowerCase() === "img") {
+        imageTarget.src = displayImage;
+        imageTarget.alt = displayTitle;
+      } else {
+        const img = document.createElement("img");
+        img.className = "admin-preview-image";
+        img.src = displayImage;
+        img.alt = displayTitle;
+        imageTarget.replaceWith(img);
+      }
+    } else {
+      if (imageTarget.tagName.toLowerCase() === "img") {
+        const placeholder = document.createElement("div");
+        placeholder.className = "admin-preview-image-placeholder";
+        placeholder.textContent = "Preview";
+        imageTarget.replaceWith(placeholder);
+      } else {
+        imageTarget.textContent = "Preview";
+      }
+    }
+  }
+
+  function createStars(rating) {
+    const numericRating = Number(rating) || 0;
+    const fullStars = Math.floor(numericRating);
+    const hasHalfStar = numericRating % 1 !== 0;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    return "★".repeat(fullStars) + (hasHalfStar ? "½" : "") + "☆".repeat(emptyStars);
   }
 
   function getTypeLabel(review) {
