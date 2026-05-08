@@ -5,8 +5,6 @@ const apiCache = new Map();
 let allReviews = [];
 
 document.addEventListener("DOMContentLoaded", async function () {
-  createReviewModal();
-
   const mediaContainer = document.getElementById("mediaContainer");
   const searchInput = document.getElementById("searchInput");
 
@@ -554,9 +552,7 @@ function formatDetails(item, apiData) {
 
 function createCard(item, apiData, container) {
   const card = document.createElement("div");
-  card.className = `card ${item.type}-card clickable-card`;
-  card.setAttribute("role", "button");
-  card.setAttribute("tabindex", "0");
+  card.className = `card ${item.type}-card`;
 
   const apiOverview =
     item.type === "film" && apiData.overview
@@ -583,29 +579,12 @@ function createCard(item, apiData, container) {
     </div>
   `;
 
-  card.addEventListener("click", function (event) {
-    if (event.target.closest("a")) {
-      return;
-    }
-
-    openReviewModal(item, apiData);
-  });
-
-  card.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      openReviewModal(item, apiData);
-    }
-  });
-
   container.appendChild(card);
 }
 
 function createCarouselCard(item, apiData, container) {
   const card = document.createElement("div");
-  card.className = `carousel-card ${item.type}-carousel-card clickable-card`;
-  card.setAttribute("role", "button");
-  card.setAttribute("tabindex", "0");
+  card.className = `carousel-card ${item.type}-carousel-card`;
 
   const details =
     item.type === "music"
@@ -628,125 +607,7 @@ function createCarouselCard(item, apiData, container) {
     </div>
   `;
 
-  card.addEventListener("click", function (event) {
-    if (event.target.closest("a")) {
-      return;
-    }
-
-    openReviewModal(item, apiData);
-  });
-
-  card.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      openReviewModal(item, apiData);
-    }
-  });
-
   container.appendChild(card);
-}
-
-/* MODAL */
-
-function createReviewModal() {
-  if (document.getElementById("reviewModal")) {
-    return;
-  }
-
-  const modal = document.createElement("div");
-  modal.id = "reviewModal";
-  modal.className = "review-modal hidden";
-
-  modal.innerHTML = `
-    <div class="review-modal-backdrop" id="reviewModalBackdrop"></div>
-
-    <article class="review-modal-card">
-      <button class="review-modal-close" id="reviewModalClose" aria-label="Close review">
-        ×
-      </button>
-
-      <div class="review-modal-grid">
-        <div class="review-modal-image-wrap">
-          <img id="modalImage" class="review-modal-image" src="" alt="">
-        </div>
-
-        <div class="review-modal-content">
-          <p class="meta" id="modalType">Review</p>
-          <h2 id="modalTitle">Title</h2>
-          <p class="details" id="modalDetails">Details</p>
-          <div class="stars" id="modalStars">★★★★★</div>
-
-          <div class="review-modal-text">
-            <p id="modalReview"></p>
-            <p id="modalOverview" class="api-overview"></p>
-            <a id="modalSpotifyLink" class="spotify-link hidden" href="#" target="_blank" rel="noopener noreferrer">
-              Open on Spotify
-            </a>
-          </div>
-        </div>
-      </div>
-    </article>
-  `;
-
-  document.body.appendChild(modal);
-
-  document.getElementById("reviewModalClose").addEventListener("click", closeReviewModal);
-  document.getElementById("reviewModalBackdrop").addEventListener("click", closeReviewModal);
-
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") {
-      closeReviewModal();
-    }
-  });
-}
-
-function openReviewModal(item, apiData) {
-  const modal = document.getElementById("reviewModal");
-
-  if (!modal) {
-    return;
-  }
-
-  document.getElementById("modalImage").src = apiData.image;
-  document.getElementById("modalImage").alt = apiData.title;
-  document.getElementById("modalType").textContent = getMediaLabel(item);
-  document.getElementById("modalTitle").textContent = apiData.title;
-  document.getElementById("modalDetails").textContent = formatDetails(item, apiData);
-  document.getElementById("modalStars").textContent = createStars(item.rating);
-  document.getElementById("modalReview").textContent = item.review || "No review written yet.";
-
-  const modalOverview = document.getElementById("modalOverview");
-  const modalSpotifyLink = document.getElementById("modalSpotifyLink");
-
-  if (item.type === "film" && apiData.overview) {
-    modalOverview.textContent = apiData.overview;
-    modalOverview.classList.remove("hidden");
-  } else {
-    modalOverview.textContent = "";
-    modalOverview.classList.add("hidden");
-  }
-
-  if (item.type === "music" && apiData.spotifyUrl) {
-    modalSpotifyLink.href = apiData.spotifyUrl;
-    modalSpotifyLink.classList.remove("hidden");
-  } else {
-    modalSpotifyLink.href = "#";
-    modalSpotifyLink.classList.add("hidden");
-  }
-
-  modal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
-}
-
-function closeReviewModal() {
-  const modal = document.getElementById("reviewModal");
-
-  if (!modal) {
-    return;
-  }
-
-  modal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
 }
 
 /* DISPLAY */
