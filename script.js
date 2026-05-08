@@ -365,7 +365,12 @@ async function getApiData(item) {
 /* HELPERS */
 
 function createStars(rating) {
-  return "★".repeat(rating) + "☆".repeat(5 - rating);
+  const numericRating = Number(rating) || 0;
+  const fullStars = Math.floor(numericRating);
+  const hasHalfStar = numericRating % 1 !== 0;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+  return "★".repeat(fullStars) + (hasHalfStar ? "½" : "") + "☆".repeat(emptyStars);
 }
 
 function getMediaLabel(item) {
