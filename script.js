@@ -105,7 +105,7 @@ function convertSupabaseReview(row) {
     artist: row.artist || "",
     mediaType: row.media_type || "",
     tmdbId: row.tmdb_id || null,
-    rating: row.rating,
+    rating: Number(row.rating) || 0,
     featured: row.featured || false,
     review: row.review || ""
   };
@@ -168,12 +168,12 @@ async function getMusicData(item) {
 
   if (item.manual) {
     const manualData = {
-      title: item.manual.title,
-      artist: item.manual.artist,
-      image: item.manual.image,
-      releaseDate: item.manual.releaseDate,
-      genre: item.manual.genre,
-      genres: [item.manual.genre],
+      title: item.manual.title || item.title,
+      artist: item.manual.artist || item.artist || "Unknown artist",
+      image: item.manual.image || "https://via.placeholder.com/600x600?text=No+Album+Art",
+      releaseDate: item.manual.releaseDate || "Unknown",
+      genre: item.manual.genre || "Unknown genre",
+      genres: [item.manual.genre || "Unknown genre"],
       year: Number(item.manual.releaseDate) || 0,
       spotifyUrl: item.manual.spotifyUrl || ""
     };
@@ -707,23 +707,16 @@ function openReviewModal(item, apiData) {
     return;
   }
 
-  const modalImage = document.getElementById("modalImage");
-  const modalType = document.getElementById("modalType");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalDetails = document.getElementById("modalDetails");
-  const modalStars = document.getElementById("modalStars");
-  const modalReview = document.getElementById("modalReview");
+  document.getElementById("modalImage").src = apiData.image;
+  document.getElementById("modalImage").alt = apiData.title;
+  document.getElementById("modalType").textContent = getMediaLabel(item);
+  document.getElementById("modalTitle").textContent = apiData.title;
+  document.getElementById("modalDetails").textContent = formatDetails(item, apiData);
+  document.getElementById("modalStars").textContent = createStars(item.rating);
+  document.getElementById("modalReview").textContent = item.review || "No review written yet.";
+
   const modalOverview = document.getElementById("modalOverview");
   const modalSpotifyLink = document.getElementById("modalSpotifyLink");
-
-  modalImage.src = apiData.image;
-  modalImage.alt = apiData.title;
-
-  modalType.textContent = getMediaLabel(item);
-  modalTitle.textContent = apiData.title;
-  modalDetails.textContent = formatDetails(item, apiData);
-  modalStars.textContent = createStars(item.rating);
-  modalReview.textContent = item.review || "No review written yet.";
 
   if (item.type === "film" && apiData.overview) {
     modalOverview.textContent = apiData.overview;
