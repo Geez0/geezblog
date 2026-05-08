@@ -77,20 +77,20 @@
         </label>
 
         <label class="admin-label">
-  Rating
-  <select id="ratingInput" class="admin-input">
-    <option value="5">5 stars</option>
-    <option value="4.5">4.5 stars</option>
-    <option value="4">4 stars</option>
-    <option value="3.5">3.5 stars</option>
-    <option value="3">3 stars</option>
-    <option value="2.5">2.5 stars</option>
-    <option value="2">2 stars</option>
-    <option value="1.5">1.5 stars</option>
-    <option value="1">1 star</option>
-    <option value="0.5">0.5 stars</option>
-  </select>
-</label>
+          Rating
+          <select id="ratingInput" class="admin-input">
+            <option value="5">5 stars</option>
+            <option value="4.5">4.5 stars</option>
+            <option value="4">4 stars</option>
+            <option value="3.5">3.5 stars</option>
+            <option value="3">3 stars</option>
+            <option value="2.5">2.5 stars</option>
+            <option value="2">2 stars</option>
+            <option value="1.5">1.5 stars</option>
+            <option value="1">1 star</option>
+            <option value="0.5">0.5 stars</option>
+          </select>
+        </label>
 
         <label class="admin-label checkbox-label">
           <input id="featuredInput" type="checkbox" />
@@ -101,6 +101,10 @@
           Review
           <textarea id="reviewInput" class="admin-input admin-textarea" placeholder="Write your review here..."></textarea>
         </label>
+
+        <button id="fetchSpotifyPreviewButton" class="admin-button secondary-button" type="button">
+          Fetch Spotify Preview
+        </button>
 
         <details class="manual-details">
           <summary>Manual music override</summary>
@@ -133,12 +137,37 @@
 
         <button id="saveReviewButton" class="admin-button">Save Review</button>
         <button id="cancelEditButton" class="admin-button secondary-button hidden">Cancel Edit</button>
+        <button id="clearFormButton" class="admin-button secondary-button" type="button">Clear Form</button>
         <button id="logoutButton" class="admin-button secondary-button">Log Out</button>
 
         <p id="saveMessage" class="admin-message"></p>
       </section>
 
       <section class="admin-panel">
+        <p class="eyebrow">Preview</p>
+        <h2>Card Preview</h2>
+
+        <div id="previewCard" class="admin-preview-card">
+          <div class="admin-preview-image-placeholder">Preview</div>
+
+          <div class="admin-preview-content">
+            <p class="meta" id="previewType">Type</p>
+            <h3 id="previewTitle">Title</h3>
+            <p class="details" id="previewDetails">Artist / Year / Info</p>
+            <div class="stars" id="previewStars">★★★★★</div>
+            <div class="description">
+              <p id="previewReview">Your review preview will show here.</p>
+              <a id="previewSpotifyLink" class="spotify-link hidden" href="#" target="_blank" rel="noopener noreferrer">
+                Open on Spotify
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <p id="previewMessage" class="admin-message"></p>
+      </section>
+
+      <section class="admin-panel admin-manage-panel">
         <p class="eyebrow">Manage</p>
         <h2>Your Reviews</h2>
 
@@ -154,10 +183,8 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=3"></script>
-  <script src="admin.js?v=3"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js?v=4"></script>
-  <script src="admin.js?v=5"></script>
+  <script src="admin.js?v=6"></script>
+
 </body>
 </html>
