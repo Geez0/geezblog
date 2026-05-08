@@ -881,5 +881,45 @@ main {
 
   .small-admin-button {
     width: 100%;
-  }
+  /* ADMIN PREVIEW CARD */
+
+.admin-manage-panel {
+  grid-column: 1 / -1;
+}
+
+.admin-preview-card {
+  background: #0f0f0d;
+  border: 1px solid #373126;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.admin-preview-image-placeholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #1a1a15;
+  color: #8f8474;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.admin-preview-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-preview-content {
+  padding: 20px;
+}
+
+.admin-preview-content h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  letter-spacing: -0.7px;
+}
 }
