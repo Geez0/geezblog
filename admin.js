@@ -137,6 +137,75 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
+  async function addSpotifyDataIfNeeded(reviewData) {
+    const isMusic = reviewData.type === "music";
+    const hasArtist = Boolean(reviewData.artist);
+    const hasManualImage = Boolean(reviewData.manual_image);
+
+    if (!isMusic || !hasArtist || hasManualImage) {
+      return {
+        ...reviewData,
+        spotify_title: null,
+        spotify_artist: null,
+        spotify_image: null,
+        spotify_release_date: null,
+        spotify_genre: null,
+        spotify_url: null,
+        spotify_id: null
+      };
+    }
+
+    try {
+      saveMessage.textContent = "Finding Spotify data...";
+
+      const { data, error } = await supabaseClient.functions.invoke("spotify-search", {
+        body: {
+          title: reviewData.title,
+          artist: reviewData.artist
+        }
+      });
+
+      if (error || !data || data.error) {
+        console.warn("Spotify lookup failed:", error || data?.error);
+
+        return {
+          ...reviewData,
+          spotify_title: null,
+          spotify_artist: null,
+          spotify_image: null,
+          spotify_release_date: null,
+          spotify_genre: null,
+          spotify_url: null,
+          spotify_id: null
+        };
+      }
+
+      return {
+        ...reviewData,
+        spotify_title: data.title || reviewData.title,
+        spotify_artist: data.artist || reviewData.artist,
+        spotify_image: data.image || null,
+        spotify_release_date: data.releaseDate || null,
+        spotify_genre: data.genre || "Album",
+        spotify_url: data.spotifyUrl || null,
+        spotify_id: data.spotifyId || null
+      };
+    } catch (error) {
+      console.error("Spotify lookup error:", error);
+
+      return {
+        ...reviewData,
+        spotify_title: null,
+        spotify_artist: null,
+        spotify_image: null,
+        spotify_release_date: null,
+        spotify_genre: null,
+        spotify_url: null,
+        spotify_id: null
+      };
+    }
+  }
+
   async function saveNewReview() {
     saveMessage.textContent = "Saving...";
 
@@ -147,9 +216,11 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    const reviewData = await addSpotifyDataIfNeeded(formResult.data);
+
     const { error } = await supabaseClient
       .from("reviews")
-      .insert([formResult.data]);
+      .insert([reviewData]);
 
     if (error) {
       saveMessage.textContent = error.message;
@@ -172,9 +243,11 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    const reviewData = await addSpotifyDataIfNeeded(formResult.data);
+
     const { error } = await supabaseClient
       .from("reviews")
-      .update(formResult.data)
+      .update(reviewData)
       .eq("id", id);
 
     if (error) {
